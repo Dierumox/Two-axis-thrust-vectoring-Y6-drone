@@ -2,4 +2,4 @@ This section explains how the system calculates gimbal servo angles and main mot
 
 First of all, these are simple 3D dynamics equations:
 
-![logo](./Media/1.png)
+![logo](./Media/developed6eq.png)
