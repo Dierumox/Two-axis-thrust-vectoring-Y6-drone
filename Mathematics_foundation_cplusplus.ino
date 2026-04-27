@@ -1,0 +1,218 @@
+#include <math.h>
+
+double rx1 = 0;
+double ry1 = 0.2;
+double rz1 = 0;
+double rx2 = -0.1;
+double ry2 = -0.15;
+double rz2 = 0.05;
+double rx3 = 0.1;
+double ry3 = -0.15;
+double rz3 = 0.05;
+double b [6] [1] = {0};
+double L [6] [6] = {0};
+double A [6] [9] = {
+  {1, 0, 0, 1, 0, 0, 1, 0, 0},
+  {0, 1, 0, 0, 1, 0, 0, 1, 0},
+  {0, 0, 1, 0, 0 ,1, 0, 0, 1},
+  {0, -rz1, ry1, 0, -rz2, ry2, 0, -rz3, ry3},
+  {rz1, 0, -rx1, rz2, 0, -rx2, rz3, 0, -rx3},
+  {-ry1, rx1, 0, -ry2, rx2, 0, -ry3, rx3, 0},
+};
+
+void setup(){
+
+  Serial.begin(9600);
+  if(!Serial){
+    while(1);
+  }
+
+  //***// CÁLCULO DE MATRIZ P (A·A^T) //***//
+
+  double sumatorio;
+  double P [6] [6];
+  for(int i = 0; i < 6; i++){
+    for(int k = 0; k < 6; k++){
+      sumatorio = 0;
+      for(int j = 0; j < 9; j++){
+        sumatorio = sumatorio + A [i] [j] * A [k] [j];
+      }
+      P [i] [k] = sumatorio;
+    }
+  }
+
+  //***// CÁLCULO DE MATRIZ L (Cholesky)//***//
+
+  double sumatorio1;
+  double sumatorio2;
+
+  L [0] [0] = sqrt(P [0] [0]);
+  for(int i = 1; i < 6; i++){
+    for(int j = 0; j < i; j++){
+      sumatorio1 = 0;
+      for(int k = 0; k < j; k++){
+        sumatorio1 = sumatorio1 + (L [i] [k] * L [j] [k]);
+      }
+      L [i] [j] = (1.0/L [j] [j]) * (P [i] [j] - sumatorio1); 
+    }
+    sumatorio2 = 0;
+    for(int k = 0; k < i; k++){
+      sumatorio2 = sumatorio2 + (L [i] [k] * L [i] [k]);
+    }
+    double raiznoneg = (P [i] [i] - sumatorio2);
+    if(raiznoneg < 0) raiznoneg = 0;
+    L [i] [i] = sqrt(raiznoneg);
+  }
+}
+
+void loop() {
+  double max_value [9] [1] = {0};
+  double act_value [9] [1] = {0};
+    
+  //***// RESOLUCIÓN DE L·y = b //***//
+
+  double y [6] [1] = {0};
+  double sumatorio3;
+
+  for(int i = 0; i < 6; i++){
+    sumatorio3 = 0;
+    for(int j = 0; j < i; j++){
+      sumatorio3 = sumatorio3 + L [i] [j] * y [j] [0];
+    }
+    y [i] [0] = (b [i] [0] - sumatorio3)/L [i] [i];
+  }
+
+  //***// RESOLUCIÓN DE L^T·u = y //***//
+
+  double u [6] [1] = {0};
+  double sumatorio4;
+
+  for(int i = 5; i >= 0; i--){
+    sumatorio4 = 0;
+    for(int j = i + 1; j < 6; j++){
+      sumatorio4 = sumatorio4 + L [j] [i] * u [j] [0];
+    }
+    u [i] [0] = (y [i] [0] - sumatorio4)/L [i] [i];
+  }
+
+  //***// CÁLCULO DE MATRIZ x (A^T·u) //***//
+
+  double sumatorio5;
+  double x [9] [1] = {0};
+
+  for(int i = 0; i < 9; i++){
+    sumatorio5 = 0;
+    for(int j = 0; j < 6; j++){
+      sumatorio5 = sumatorio5 + (A [j] [i] * u [j] [0]);
+    }
+    x [i] [0] = sumatorio5;
+  }
+
+  //***// IMPRESIÓN DE x EN EL MONITOR SERIAL //***//
+
+  Serial.println("Matriz x (resultado):");
+  for(int i = 0; i < 9; i++){
+    Serial.println(x [i] [0], 6);
+  }
+
+  //***// CÁLCULO DE Ft_i //***//
+
+  double Ft_i [3] [1] = {0};
+
+  for(int j = 0; j < 3; j++){
+    int i = j * 3;
+    Ft_i [j] [0] = sqrt(x [i] [0] * x [i] [0] + x [i+1] [0] * x [i+1] [0] + x [i+2] [0] * x [i+2] [0]);
+  }
+
+  //***// CÁLCULO DE servo_x Y servo_y //***//
+
+  double angulosgimbal [6] [1] = {
+  {atan2(x [1] [0], sqrt(x [0] [0] * x [0] [0] + x [2] [0] * x [2] [0]))},
+  {atan2(-x [0] [0], x [2] [0])},
+  {atan2(x [4] [0], sqrt(x [3] [0] * x [3] [0] + x [5] [0] * x [5] [0]))},
+  {atan2(-x [3] [0], x [5] [0])},
+  {atan2(x [7] [0], sqrt(x [6] [0] * x [6] [0] + x [8] [0] * x [8] [0]))},
+  {atan2(-x [6] [0], x [8] [0])},
+  };
+
+  //***// IMPRESIÓN DE angulosgimbal //***//
+
+  Serial.println("Matriz angulosgimbal:");
+
+  for(int i = 0; i < 6; i++){
+    Serial.println(angulosgimbal [i] [0]);
+  }
+
+  //***// OBTENCIÓN DE LA MATRIZ PSEUDOINVERSA A^+ (Ap) //***//
+
+  double e_i [6] [1] = {0};
+  double y_i [6] [1] = {0};
+  double u_i [6] [1] = {0};
+  double Ap [9] [6] = {0};
+
+  for(int i = 0; i < 6; i++){
+    for(int j = 0; j < 6; j++){
+    y_i [j][0]=0.0;
+    u_i [j][0]=0.0;
+    }
+    for(int j = 0; j < 6; j++) e_i [j] [0] = 0.0;
+    e_i [i] [0] = 1.0;
+    for(int m = 0; m < 6; m++){ //***// RESOLUCIÓN DE L·y_i = e_i //***//
+      sumatorio3 = 0;
+      for(int n = 0; n < m; n++){
+        sumatorio3 = sumatorio3 + L [m] [n] * y_i [n] [0];
+      }
+      y_i [m] [0] = (e_i [m] [0] - sumatorio3)/L [m] [m];
+    }
+    for(int m = 5; m >= 0; m--){ //***// RESOLUCIÓN DE L^T·u_i = y_i //***//
+      sumatorio4 = 0;
+      for(int n = m + 1; n < 6; n++){
+        sumatorio4 = sumatorio4 + L [n] [m] * u_i [n] [0];
+      }
+      u_i [m] [0] = (y_i [m] [0] - sumatorio4)/L [m] [m];
+    }
+    for(int m = 0; m < 9; m++){ //***// CÁLCULO DE MATRIZ x_i (A^T·u_i) //***//
+      sumatorio5 = 0;
+      for(int n = 0; n < 6; n++){
+        sumatorio5 = sumatorio5 + (A [n] [m] * u_i [n] [0]);
+      }
+      Ap [m] [i] = sumatorio5;
+    }
+  }
+  
+  //***// IMPRESIÓN DE MATRIZ A^+ (Ap) //***//
+
+  Serial.println("Matriz Ap:");
+  for(int i = 0; i < 9; i++){
+    for(int j = 0; j < 6; j++){
+      if(j < 5) Serial.print(Ap [i] [j]) && Serial.print(", ");
+      if(j == 5) Serial.println(Ap [i] [j]);
+    }
+  }
+
+  //***// COMPROBACIÓN A·A^+ = I_6 //***//
+
+  double sumatorio6;
+  double AAp [6] [6] = {0};
+
+  for(int i = 0; i < 6; i++){
+    for(int j = 0; j < 6; j++){
+      sumatorio6 = 0.0;
+      for(int k = 0; k < 9; k++){
+        sumatorio6 = sumatorio6 + (A [i] [k] * Ap [k] [j]);
+      }
+      AAp [i] [j] = sumatorio6;
+    }
+  }
+
+  //***// IMPRESIÓN DE AAp //***//
+
+  Serial.println("Matriz AAp (debe parecerse a I_6):");
+  for(int i = 0; i < 6; i++){
+    for(int j = 0; j < 6; j++){
+      if(j < 5) Serial.print(AAp [i] [j]) && Serial.print(", ");
+      if(j == 5) Serial.println(AAp [i] [j]);
+    }
+  }
+  while(1);
+}
