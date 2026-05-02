@@ -26,3 +26,7 @@ To manage all this we can create matrices. The matrix A will be the six equation
 and the matrix b will be the six determined values. The matrices are the following:
 
 ![logo](./Media/3sepmatr.png)
+
+They form this matricial system of equations:
+
+![logo](./Media/matreqsyst.png)
