@@ -29,4 +29,4 @@ and the matrix b will be the six determined values. The matrices are the followi
 
 They form this matricial system of equations:
 
-![logo](./Media/matreqsyst.png)
+![logo](./Media/matrsysteq.png)
