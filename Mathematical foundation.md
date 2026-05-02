@@ -31,8 +31,8 @@ They form this matricial system of equations:
 
 ![logo](./Media/matrsysteq.png)
 
-That system is underdetermined, so we have to find the most efficient solution in the 3D solution space. That solution is 
-the minimum-norm one, the most energy-efficient solution. To find it, we resort to the Moore-Penrose pseudoinverse. The 
+That system is underdetermined, so we have to find the most efficient solution in the 3D solution space. We are looking for 
+the minimum-norm solution, the most energy-efficient one. To find it, we resort to the Moore-Penrose pseudoinverse. Its 
 formula for a system that has less lines than columns (6x9) is the following:
 
 ![logo](./Media/MPpseu.png)
@@ -40,3 +40,18 @@ formula for a system that has less lines than columns (6x9) is the following:
 And the minimum-norm solution is:
 
 ![logo](./Media/appliedMPpseu.png)
+
+If we calculate A·A^T we get a new 6x6 matrix, which we will call P. Then, we would have to calculate the inverse of P, but
+it is a too long procedure thet we can avoid with other mathematical tool: Cholesky factorization. We create a lower 
+triangular matrix that satisfies:
+
+![logo](./Media/LLTP.png)
+
+The formula for the diagonal of the L matrix is:
+
+![logo](./Media/Choldiag.png)
+
+And the formula for the lower part of the matrix is:
+
+![logo](./Media/Chollow.png)
+
