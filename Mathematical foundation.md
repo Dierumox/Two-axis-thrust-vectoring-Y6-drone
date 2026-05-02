@@ -13,7 +13,7 @@ If we develop the previous equations:
 ![logo](./Media/developed6eq.png)
 
 Those six equations form a system of equations of the drone dynamics, but we have to define clearly the unknowns and the 
-determined values. The determined values are the six expresions at the left side of the six previous equations:
+determined values. The determined values are sent by the remote controller, and are the six expresions at the left side of the six previous equations:
 
 ![logo](./Media/6detval.png)
 
@@ -22,3 +22,4 @@ And then we have nine unknowns:
 ![logo](./Media/9unkn.png)
 
 Those are all the vector components of the three thrust vectors (three motors, three components each).
+To manage all this we can create matrices. The matrix A will be the six equations, the matrix x will be the nine unknowns and the matrix b will be the six determined values.
