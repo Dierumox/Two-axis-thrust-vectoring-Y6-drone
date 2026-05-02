@@ -63,3 +63,7 @@ get those systems. This is the procedure:
 We have to solve first Ly=b, and this is the formula (being L=l_ij):
 
 ![logo](./Media/Lybformula.png)
+
+Now that we have the matrix y, we solve the next system (L^Tu=y) with:
+
+![logo](./Media/LTuyformula.png)
