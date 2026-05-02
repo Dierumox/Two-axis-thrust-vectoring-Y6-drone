@@ -14,4 +14,4 @@ If we develop the previous equations:
 
 Those six equations form a system of equations of the drone dynamics, but we have to define clearly the unknowns. There are nine unknowns:
 
-![logo](./Media/6unkn.png)
+![logo](./Media/9unkn.png)
