@@ -36,3 +36,7 @@ the minimum-norm one, the most energy-efficient solution. To find it, we resort 
 formula for a system that has less lines than columns (6x9) is the following:
 
 ![logo](./Media/MPpseu.png)
+
+And the minimum-norm solution is:
+
+![logo](./Media/appliedMPpseu)
