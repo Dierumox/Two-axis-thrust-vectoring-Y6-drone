@@ -59,3 +59,7 @@ That the matrices L and L^T are triangular matrices means that we can solve syst
 get those systems. This is the procedure:
 
 ![logo](./Media/Cholsystprocedure.png)
+
+We have to solve first Ly=b, and this is the formula (being L=l_ij):
+
+![logo](./Media/Lybformula.png)
