@@ -39,4 +39,4 @@ formula for a system that has less lines than columns (6x9) is the following:
 
 And the minimum-norm solution is:
 
-![logo](./Media/appliedMPpseu)
+![logo](./Media/appliedMPpseu.png)
