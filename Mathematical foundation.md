@@ -11,3 +11,7 @@ the vector F_i starts.
 If we develop the previous equations:
 
 ![logo](./Media/developed6eq.png)
+
+Those six equations form a system of equations of the drone dynamics, but we have to define clearly the unknowns. There are nine unknowns:
+
+![logo](./Media/6unkn.png)
