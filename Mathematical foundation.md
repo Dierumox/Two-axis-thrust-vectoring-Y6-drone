@@ -30,3 +30,9 @@ and the matrix b will be the six determined values. The matrices are the followi
 They form this matricial system of equations:
 
 ![logo](./Media/matrsysteq.png)
+
+That system is underdetermined, so we have to find the most efficient solution in the 3D solution space. That solution is 
+the minimum-norm one, the most energy-efficient solution. To find it, we resort to the Moore-Penrose pseudoinverse. The 
+formula for a system that has less lines than columns (6x9) is the following:
+
+![logo](./Media/MPpseu.png)
