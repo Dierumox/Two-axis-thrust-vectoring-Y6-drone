@@ -22,4 +22,7 @@ And then we have nine unknowns:
 ![logo](./Media/9unkn.png)
 
 Those are all the vector components of the three thrust vectors (three motors, three components each).
-To manage all this we can create matrices. The matrix A will be the six equations, the matrix x will be the nine unknowns and the matrix b will be the six determined values.
+To manage all this we can create matrices. The matrix A will be the six equations, the matrix x will be the nine unknowns
+and the matrix b will be the six determined values. The matrices are the following:
+
+![logo](./Media/3sepmatr.png)
