@@ -64,6 +64,8 @@ We have to solve first Ly=b, and this is the formula (being L=l_ij):
 
 ![logo](./Media/Lybformula.png)
 
-Now that we have the matrix y, we solve the next system (L^Tu=y) with:
+Now that we have the matrix y, we solve the next system (L^T·u=y) with:
 
 ![logo](./Media/LTuyformula.png)
+
+Then, with the matrix u, we can solve x=A^T·u, and we get the minimum-norm solution to Ax=b.
