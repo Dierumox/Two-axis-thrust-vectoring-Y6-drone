@@ -55,3 +55,7 @@ And the formula for the lower part of the matrix is:
 
 ![logo](./Media/Chollow.png)
 
+That the matrices L and L^T are triangular matrices means that we can solve systems with them easily. The next step is to 
+get those systems. This is the procedure:
+
+![logo](./Media/Cholsystprocedure.png)
