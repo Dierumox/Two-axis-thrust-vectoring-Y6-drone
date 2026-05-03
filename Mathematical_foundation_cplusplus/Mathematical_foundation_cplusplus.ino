@@ -1,15 +1,22 @@
 #include <math.h>
 
 double rx1 = 0;
-double ry1 = 0.2;
+double ry1 = 2;
 double rz1 = 0;
-double rx2 = -0.1;
-double ry2 = -0.15;
-double rz2 = 0.05;
-double rx3 = 0.1;
-double ry3 = -0.15;
-double rz3 = 0.05;
-double b [6] [1] = {0};
+double rx2 = -1;
+double ry2 = -1.5;
+double rz2 = 0;
+double rx3 = 1;
+double ry3 = -1.5;
+double rz3 = 0;
+double b [6] [1] = {
+  {0},
+  {0},
+  {1},
+  {0},
+  {0},
+  {0},
+};
 double L [6] [6] = {0};
 double A [6] [9] = {
   {1, 0, 0, 1, 0, 0, 1, 0, 0},
@@ -27,7 +34,7 @@ void setup(){
     while(1);
   }
 
-  //***// CÁLCULO DE MATRIZ P (A·A^T) //***//
+  //***// MATRIX P CALCULATION (A·A^T) //***//
 
   double sumatorio;
   double P [6] [6];
@@ -41,7 +48,7 @@ void setup(){
     }
   }
 
-  //***// CÁLCULO DE MATRIZ L (Cholesky)//***//
+  //***// MATRIX L CALCULATION (Cholesky)//***//
 
   double sumatorio1;
   double sumatorio2;
@@ -69,7 +76,7 @@ void loop() {
   double max_value [9] [1] = {0};
   double act_value [9] [1] = {0};
     
-  //***// RESOLUCIÓN DE L·y = b //***//
+  //***// L·y = b SOLVING //***//
 
   double y [6] [1] = {0};
   double sumatorio3;
@@ -82,7 +89,7 @@ void loop() {
     y [i] [0] = (b [i] [0] - sumatorio3)/L [i] [i];
   }
 
-  //***// RESOLUCIÓN DE L^T·u = y //***//
+  //***// L^T·u = y SOLVING //***//
 
   double u [6] [1] = {0};
   double sumatorio4;
@@ -95,7 +102,7 @@ void loop() {
     u [i] [0] = (y [i] [0] - sumatorio4)/L [i] [i];
   }
 
-  //***// CÁLCULO DE MATRIZ x (A^T·u) //***//
+  //***// MATRIX x CALCULATION (A^T·u) //***//
 
   double sumatorio5;
   double x [9] [1] = {0};
@@ -108,14 +115,14 @@ void loop() {
     x [i] [0] = sumatorio5;
   }
 
-  //***// IMPRESIÓN DE x EN EL MONITOR SERIAL //***//
+  //***// PRINTING OF x ON THE SERIAL MONITOR //***//
 
-  Serial.println("Matriz x (resultado):");
+  Serial.println("Matrix x (result):");
   for(int i = 0; i < 9; i++){
     Serial.println(x [i] [0], 6);
   }
 
-  //***// CÁLCULO DE Ft_i //***//
+  //***// Ft_i CALCULATION //***//
 
   double Ft_i [3] [1] = {0};
 
@@ -124,7 +131,7 @@ void loop() {
     Ft_i [j] [0] = sqrt(x [i] [0] * x [i] [0] + x [i+1] [0] * x [i+1] [0] + x [i+2] [0] * x [i+2] [0]);
   }
 
-  //***// CÁLCULO DE servo_x Y servo_y //***//
+  //***// servo_x & servo_y CALCULATION //***//
 
   double angulosgimbal [6] [1] = {
   {atan2(x [1] [0], sqrt(x [0] [0] * x [0] [0] + x [2] [0] * x [2] [0]))},
@@ -135,15 +142,15 @@ void loop() {
   {atan2(-x [6] [0], x [8] [0])},
   };
 
-  //***// IMPRESIÓN DE angulosgimbal //***//
+  //***// PRINTING OF angulosgimbal ON THE SERIAL MONITOR //***//
 
-  Serial.println("Matriz angulosgimbal:");
+  Serial.println("Matrix angulosgimbal:");
 
   for(int i = 0; i < 6; i++){
     Serial.println(angulosgimbal [i] [0]);
   }
 
-  //***// OBTENCIÓN DE LA MATRIZ PSEUDOINVERSA A^+ (Ap) //***//
+  //***// OBTENTION OF THE PSEUDOINVERSE MATRIX  A^+ (Ap) //***//
 
   double e_i [6] [1] = {0};
   double y_i [6] [1] = {0};
@@ -157,21 +164,21 @@ void loop() {
     }
     for(int j = 0; j < 6; j++) e_i [j] [0] = 0.0;
     e_i [i] [0] = 1.0;
-    for(int m = 0; m < 6; m++){ //***// RESOLUCIÓN DE L·y_i = e_i //***//
+    for(int m = 0; m < 6; m++){ //***// L·y_i = e_i SOLVING //***//
       sumatorio3 = 0;
       for(int n = 0; n < m; n++){
         sumatorio3 = sumatorio3 + L [m] [n] * y_i [n] [0];
       }
       y_i [m] [0] = (e_i [m] [0] - sumatorio3)/L [m] [m];
     }
-    for(int m = 5; m >= 0; m--){ //***// RESOLUCIÓN DE L^T·u_i = y_i //***//
+    for(int m = 5; m >= 0; m--){ //***// L^T·u_i = y_i SOLVING //***//
       sumatorio4 = 0;
       for(int n = m + 1; n < 6; n++){
         sumatorio4 = sumatorio4 + L [n] [m] * u_i [n] [0];
       }
       u_i [m] [0] = (y_i [m] [0] - sumatorio4)/L [m] [m];
     }
-    for(int m = 0; m < 9; m++){ //***// CÁLCULO DE MATRIZ x_i (A^T·u_i) //***//
+    for(int m = 0; m < 9; m++){ //***// MATRIX x_i (A^T·u_i) CALCULATION //***//
       sumatorio5 = 0;
       for(int n = 0; n < 6; n++){
         sumatorio5 = sumatorio5 + (A [n] [m] * u_i [n] [0]);
@@ -180,9 +187,9 @@ void loop() {
     }
   }
   
-  //***// IMPRESIÓN DE MATRIZ A^+ (Ap) //***//
+  //***// PRINTING OF A^+ (Ap) ON THE SERIAL MONITOR //***//
 
-  Serial.println("Matriz Ap:");
+  Serial.println("Matrix Ap:");
   for(int i = 0; i < 9; i++){
     for(int j = 0; j < 6; j++){
       if(j < 5) Serial.print(Ap [i] [j]) && Serial.print(", ");
@@ -190,7 +197,7 @@ void loop() {
     }
   }
 
-  //***// COMPROBACIÓN A·A^+ = I_6 //***//
+  //***// A·A^+ = I_6 VERIFICATION //***//
 
   double sumatorio6;
   double AAp [6] [6] = {0};
@@ -205,9 +212,9 @@ void loop() {
     }
   }
 
-  //***// IMPRESIÓN DE AAp //***//
+  //***// PRINTING OF AAp ON THE SERIAL MONITOR //***//
 
-  Serial.println("Matriz AAp (debe parecerse a I_6):");
+  Serial.println("Matrix AAp (be almost a I_6):");
   for(int i = 0; i < 6; i++){
     for(int j = 0; j < 6; j++){
       if(j < 5) Serial.print(AAp [i] [j]) && Serial.print(", ");
