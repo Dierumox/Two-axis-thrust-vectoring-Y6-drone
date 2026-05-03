@@ -9,7 +9,14 @@ double rz2 = 0.05;
 double rx3 = 0.1;
 double ry3 = -0.15;
 double rz3 = 0.05;
-double b [6] [1] = {0};
+double b [6] [1] = {
+  {0},
+  {0},
+  {1},
+  {0},
+  {0},
+  {0},
+};
 double L [6] [6] = {0};
 double A [6] [9] = {
   {1, 0, 0, 1, 0, 0, 1, 0, 0},
