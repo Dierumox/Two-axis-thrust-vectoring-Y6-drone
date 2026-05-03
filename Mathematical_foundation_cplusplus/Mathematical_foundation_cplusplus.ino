@@ -3,12 +3,21 @@
 double rx1 = 0;
 double ry1 = 2;
 double rz1 = 0;
+<<<<<<< HEAD:Mathematical_foundation_cplusplus/Mathematical_foundation_cplusplus.ino
 double rx2 = -1;
 double ry2 = -1.5;
 double rz2 = 0;
 double rx3 = 1;
 double ry3 = -1.5;
 double rz3 = 0;
+=======
+double rx2 = -0.1;
+double ry2 = -0.15;
+double rz2 = 0.05;
+double rx3 = 0.1;
+double ry3 = -0.15;
+double rz3 = 0.05;
+>>>>>>> 8401df00eb466b1f16568287afca283a8f4823b8:Mathematical_foundation_cplusplus.ino
 double b [6] [1] = {
   {0},
   {0},
