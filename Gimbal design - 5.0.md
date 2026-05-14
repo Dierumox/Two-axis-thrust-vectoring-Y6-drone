@@ -8,7 +8,7 @@ Component distribution
             SN65HVD230 CAN transceiver - 1x
             120 ohm resistor for the CAN bus echo in parallel on the CAN transceiver - 1x
             6S battery - 1x
-            6S-5/12V converter - 1x
+            6S-5/12V converter for the motor driver - 1x
             DRVxxxx FOC motor driver with CAN bus - 1x
             GM3506 gimbal motor with belt drive reduction system - 1x
             30A 4CH Senring - () part - 1x
@@ -23,7 +23,7 @@ Component distribution
             Pulley for the GM3506 - 1x
     AXIS 1 - AXIS 2
         AXIS 1
-            6S-5/12V converter - 1x
+            6S-5/12V converter for the motor driver - 1x
             DRVxxxx FOC motor driver with CAN bus - 1x
             GM3506 gimbal motor with belt drive reduction system - 1x
             30A 4CH Senring - () part - 1x
