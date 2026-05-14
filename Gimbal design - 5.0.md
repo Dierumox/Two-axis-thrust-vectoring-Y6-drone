@@ -3,13 +3,9 @@ Gimbal design - 5.0
 Component distribution
 
     BODY - AXIS 1
-    
         BODY
-        
             Teensy 4.1 - 1x
-            
             SN65HVD230 CAN transceiver - 1x
-            
             120 ohm resistor for the CAN bus echo in parallel on the CAN transceiver - 1x
             
             6S battery - 1x
