@@ -1,6 +1,7 @@
 Gimbal design - 7.0
 
 Component distribution
+
     BODY
         6S-5V Matek converter - 1x
         Teensy 4.1 - 1x
