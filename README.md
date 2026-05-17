@@ -3,7 +3,7 @@
 This project focuses on the development of an experimental FPV Y6 drone with continuous two-axis thrust vectoring.
 The platform uses a six-motor configuration (two motors for each propulsion unit; one rear propulsion unit and two front propulsion units), where each propulsion unit can redirect its thrust through a dual-ring gimbal mechanism with full 360° rotational capability. This significantly increases maneuverability, attitude control authority, and fault tolerance compared with conventional multirotor designs.
 
-The control system will be based on a Teensy 4.1 microcontroller programmed in C++, using ICM-42688-P inertial sensors and long-range LoRa communication. Power electronics will be integrated into the fixed main frame, while power and signals will be transferred to moving assemblies through slip rings.
+The control system will be based on a Teensy 4.1 microcontroller programmed in C++, using ICM-42688-P inertial sensors and long-range LoRa communication. Power electronics will be integrated into the fixed main frame, and it will be transferred to moving assemblies through slip rings. Data will be transferred through a local ESP-NOW network formed by eleven ESP32-C3 SuperMini boards. Two of them will be connected to the Teensy 4.1: one dedicated to transmitting the packets containing the gimbal motor angle commands and thrust motor RPM setpoints calculated by the Teensy, and the other dedicated to receiving error reports and telemetry data from the remaining nine ESP32 nodes.
 In addition to real-time FPV flight, the platform will include onboard video recording to MicroSD storage and an independent action camera.
 
 A core objective of the project is to develop an aircraft capable of:
