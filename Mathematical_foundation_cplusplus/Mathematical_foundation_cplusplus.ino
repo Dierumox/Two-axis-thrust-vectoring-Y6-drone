@@ -1,13 +1,13 @@
 #include <math.h>
 
 double rx1 = 0;
-double ry1 = 2;
+double ry1 = 0.02;
 double rz1 = 0;
-double rx2 = -1;
-double ry2 = -1.5;
+double rx2 = -0.01;
+double ry2 = -0.015;
 double rz2 = 0;
-double rx3 = 1;
-double ry3 = -1.5;
+double rx3 = 0.01;
+double ry3 = -0.015;
 double rz3 = 0;
 double b [6] [1] = {
   {0},
