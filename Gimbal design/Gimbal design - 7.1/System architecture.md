@@ -1,4 +1,4 @@
-Gimbal design - 7.1
+# Gimbal design - 7.1
 
 System architecture
 
