@@ -1,4 +1,4 @@
-Forward Park and Clarke Transformations
+# Forward Park and Clarke Transformations
 
 The FOC algorithm needs the I_d and I_q currents, calculated from I_a, I_b and I_c, which are the currents that go through each phase of the brushless motor. To do this, we need two transformations: the Park Transformation and the Clarke Transformation. 
 
