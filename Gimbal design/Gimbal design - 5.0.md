@@ -1,4 +1,4 @@
-Gimbal design - 5.0
+# Gimbal design - 5.0
 
 System architecture
 
