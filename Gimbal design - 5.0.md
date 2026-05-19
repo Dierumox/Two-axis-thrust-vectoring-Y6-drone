@@ -1,6 +1,6 @@
 Gimbal design - 5.0
 
-Component distribution
+System architecture
 
     BODY - AXIS 1
         BODY

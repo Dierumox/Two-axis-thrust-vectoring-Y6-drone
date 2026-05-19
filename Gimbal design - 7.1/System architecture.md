@@ -1,6 +1,6 @@
 Gimbal design - 7.1
 
-Component distribution
+System architecture
 
     BODY
         6S-5V Matek converter - 1x
