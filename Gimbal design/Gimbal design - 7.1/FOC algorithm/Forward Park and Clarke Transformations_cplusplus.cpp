@@ -1,17 +1,31 @@
 #include <math.h>
+#include <iostream>
 
 struct cp_variables {
+
     float I_alpha;
     float I_beta;
-    float I_a = 1; // igualar a lectura ADC  fase A
-    float I_b = 0.5; // igualar a lectura ADC  fase B
+
+    float I_a = 1.0f;
+    float I_b = 0.5f;
+};
+
+inline float* clarkepark(const cp_variables& v) {
+
+    static float out[2];
+
+    out[0] = v.I_a;
+
+    out[1] = (2.0f * v.I_b + v.I_a) / sqrtf(3.0f);
+
+    return out;
 }
 
 
-inline float clarkepark[] (cp_variables) {
-    I_alpha = I_a
-    I_beta = (2 * I_b + I_a) / sqrt(3);
-    return 
+int main() {
 
-    // park 
+    cp_variables vars;
+    clarkepark(vars);
+    std::cout << "I_alpha: " << vars.I_alpha << ", I_beta: " << vars.I_beta << std::endl;
+    return 0;
 }
