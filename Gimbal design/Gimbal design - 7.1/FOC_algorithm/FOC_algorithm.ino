@@ -34,12 +34,15 @@ void setup() {
 }
 
 void loop() {
+  if(I_q_target > 1.0f) I_q_target = 1.0f;
+  if(I_q_target < -1.0f) I_q_target = -1.0f;
   cp_transformations();
   // error_I_d = I_d
   error_I_q = I_q - I_q_target;
   V_d = FOC_algorithm(&I_d_properties, I_d);
   V_q = FOC_algorithm(&I_q_properties, error_I_q);
-
+  if(V_d > I_d_properties.max_voltage) V_d = I_d_properties.max_voltage;
+  if(V_q > I_q_properties.max_voltage) V_q = I_q_properties.max_voltage;
 }
 
 inline void cp_transformations() {
@@ -56,6 +59,9 @@ inline void cp_transformations() {
 }
 
 inline float FOC_algorithm(PI_properties* properties, float error) {
-  properties->integral_val = properties->integral_val + (-error * properties->K_i);
-  return (-error * properties->K_p) + (properties->integral_val);
+  //***// PI algorithm //***//
+  properties->integral_val = properties->integral_val + (-error * properties->K_i); // Integral update and I calculation
+  if(properties->integral_val > properties->max_voltage) properties->integral_val = properties->max_voltage;
+  if(properties->integral_val < -properties->max_voltage) properties->integral_val = -properties->max_voltage;
+  return (-error * properties->K_p) + (properties->integral_val); // P calculation and total voltage calculation
 }
