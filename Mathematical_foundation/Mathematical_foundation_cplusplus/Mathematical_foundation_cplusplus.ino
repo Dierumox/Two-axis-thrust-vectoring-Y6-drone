@@ -1,21 +1,21 @@
 #include <math.h>
 
 double rx1 = 0;
-double ry1 = 0.02;
+double ry1 = -0.02;
 double rz1 = 0;
 double rx2 = -0.01;
-double ry2 = -0.015;
+double ry2 = 0.015;
 double rz2 = 0;
 double rx3 = 0.01;
-double ry3 = -0.015;
+double ry3 = 0.015;
 double rz3 = 0;
 double b [6] [1] = {
   {0},
   {0},
+  {0},
+  {0},
+  {0},
   {1},
-  {0},
-  {0},
-  {0},
 };
 double L [6] [6] = {0};
 double A [6] [9] = {

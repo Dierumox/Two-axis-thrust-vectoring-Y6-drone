@@ -91,30 +91,46 @@ inline void svpwm_modulation(){
   if (V > 0.0f) sector += 2;
   if (W > 0.0f) sector += 4;
   switch(sector){
-    case 3:
-      t1 = W;
-      t2 = -V;
+    case 3: // Sector 1
+      t0_half = (1.0f - W + V) * 0.5f;
+      duty_A = t0_half + W - V;
+      duty_B = t0_half - V;
+      duty_C = t0_half;
       break;
-    case 1:
-      t1 = -W;
-      t2 = U;
+    case 1: // Sector 2
+      t0_half = (1.0f + W - U) * 0.5f;
+      duty_A = t0_half + U;
+      duty_B = t0_half - W + U;
+      duty_C = t0_half;
       break;
-    case 5:
-      t1 = V;
-      t2 = -U;
+    case 5: // Sector 3
+      t0_half = (1.0f - V + U) * 0.5f;
+      duty_A = t0_half;
+      duty_B = t0_half - V + U;
+      duty_C = t0_half - U;
       break;
-    case 4:
-      t1 = -V;
-      t2 = W;
+    case 4: // Sector 4
+      t0_half = (1.0f + V - W) * 0.5f;
+      duty_A = t0_half;
+      duty_B = t0_half + W;
+      duty_C = t0_half + V - W;
       break;
-    case 6:
-      t1 = U;
-      t2 = -W;
+    case 6: // Sector 5
+      t0_half = (1.0f - U + W) * 0.5f;
+      duty_A = t0_half - W;
+      duty_B = t0_half;
+      duty_C = t0_half - U + W;
       break;
-    case 2:
-      t1 = -U;
-      t2 = V;
+    case 2: // Sector 6
+      t0_half = (1.0f + U - V) * 0.5f;
+      duty_A = t0_half + U - V;
+      duty_B = t0_half;
+      duty_C = t0_half + V;
+      break;
+    default: // Failsafe
+      duty_A = 0.5f;
+      duty_B = 0.5f;
+      duty_C = 0.5f;
       break;
   }
-  t0 = 1.0f - t1 - t2;
 }
