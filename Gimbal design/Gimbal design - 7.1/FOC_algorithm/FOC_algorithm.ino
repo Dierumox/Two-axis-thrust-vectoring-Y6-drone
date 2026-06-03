@@ -172,4 +172,3 @@ inline void svpwm_modulation(){
       break;
   }
   t0 = 32768 - t1 - t2;
-}
