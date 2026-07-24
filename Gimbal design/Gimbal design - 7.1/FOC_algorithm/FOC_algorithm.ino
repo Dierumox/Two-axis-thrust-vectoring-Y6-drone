@@ -20,11 +20,11 @@ const uint32_t PWM_PERIOD_TICKS = 40000;
 int clk = 4;
 int miso = 6;
 int mosi = 3;
-int cs = 5;
-int in1 = 8;
-int in2 = 9;
-int in3 = 10;
-int en = 11;
+int cs_as5048a = 5;
+int in1 = 11;
+int in2 = 10;
+int in3 = 9;
+int en = 8;
 
 int16_t LUT_cos_angle_index[1024];
 int16_t LUT_sin_angle_index[1024];
