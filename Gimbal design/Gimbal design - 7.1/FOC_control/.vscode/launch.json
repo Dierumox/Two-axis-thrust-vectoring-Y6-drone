@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Depurar FOC Control",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/INA240-2-1-MCP33131_interface_optimization.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+                {
+                    "name": "PATH",
+                    "value": "C:\\Users\\usuario\\Desktop\\MSYS2\\home\\usuario\\ngspice\\build\\src\\.libs;C:\\Users\\usuario\\Desktop\\MSYS2\\ucrt64\\bin;${env:PATH}"
+                }
+            ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Users/usuario/Desktop/MSYS2/ucrt64/bin/gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Activar pretty printing",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}

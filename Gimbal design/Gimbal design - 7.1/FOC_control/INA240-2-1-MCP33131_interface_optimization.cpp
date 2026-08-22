@@ -1,6 +1,28 @@
 #include <vector>
-#include <iterator>
 #include <iostream>
+#include <ngspice/sharedspice.h>
+#include <cstring>
+#include <sstream>
+#include <iomanip>
+
+//
+// Circuito
+//
+
+std::string linea0;
+std::string linea1;
+std::string linea2;
+std::string linea3;
+std::string linea4;
+std::string linea5;
+std::string linea6;
+std::string linea7;
+std::string linea8;
+std::string linea9;
+std::string linea10;
+std::string linea11;
+
+char* circuito[9];
 
 //
 // Valores R y C
@@ -36,6 +58,23 @@ const double valoresC[] = {
 // Programa
 //
 
+int miSendChar(char* output, int id, void* userdata) {
+
+    if (output != nullptr) {
+        std::cout << "[NGSPICE] " << output << std::endl;
+    }
+
+    return 0;
+}
+
+int miSendStat(char* status, int id, void* userdata) {
+    return 0;
+}
+
+int miControlledExit(int status, bool immediate, bool quit, int id, void* userdata) {
+    return 0;
+}
+
 struct Individuo {
     int indiceR;
     int indiceC;
@@ -45,50 +84,106 @@ struct Individuo {
 std::vector<Individuo> poblacion;
 
 void generar_poblacion() {
-    for(int no_R = 0; no_R < std::size(valoresR); no_R++) {
-        for(int no_C = 0; no_C < std::size(valoresC); no_C++) {
+
+    for (int no_R = 0; no_R < std::size(valoresR); no_R++) {
+
+        for (int no_C = 0; no_C < std::size(valoresC); no_C++) {
+
             Individuo individuo;
+
             individuo.indiceR = no_R;
             individuo.indiceC = no_C;
+            individuo.fitness = 0;
+
             poblacion.push_back(individuo);
         }
     }
 }
 
+std::string convertir_numero(double valor) {
+    std::ostringstream flujo;
+    flujo << std::scientific << std::setprecision(15) << valor;
+    return flujo.str();
+}
+
 void evaluar(Individuo& individuo) {
 
+    linea0 = "TEST INA240";
+    linea1 = ".include INA240A1_test.lib";
+    linea2 = "VCC VCC 0 5";
+    linea3 = "VREF ref 0 2.5";
+    linea4 = "V1 in 0 0";
+    linea5 = "XINA out in 0 ref ref VCC 0 INA240A1";
+    linea6 = ".op";
+    linea7 = ".end";
+
+    circuito[0] = linea0.data();
+    circuito[1] = linea1.data();
+    circuito[2] = linea2.data();
+    circuito[3] = linea3.data();
+    circuito[4] = linea4.data();
+    circuito[5] = linea5.data();
+    circuito[6] = linea6.data();
+    circuito[7] = linea7.data();
+    circuito[8] = nullptr;
+
+    ngSpice_Circ(circuito);
+
+    ngSpice_Command("run");
+
+    char nombre_time[] = "time";
+    char nombre_vout[] = "out";
+
+    vector_info* info_time = ngGet_Vec_Info(nombre_time);
+    vector_info* info_vout = ngGet_Vec_Info(nombre_vout);
+
+    if (info_time == nullptr || info_vout == nullptr) {
+        std::cout << "No se han encontrado los vectores" << std::endl;
+        return;
+    }
+
+    std::cout << "Número de puntos: "
+              << info_time->v_length
+              << std::endl;
+
+    for (int i = 0; i < info_time->v_length; i++) {
+
+        double tiempo = info_time->v_realdata[i];
+        double salida = info_vout->v_realdata[i];
+
+        // Aquí posteriormente calcularemos el fitness.
+    }
 }
 
 int main() {
+
+    std::cout << "ENTRANDO EN MAIN" << std::endl;
+
+    int Init = ngSpice_Init(
+        miSendChar,
+        miSendStat,
+        miControlledExit,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr
+    );
+
+    std::cout << "Init: " << Init << std::endl;
+
     generar_poblacion();
-    double contador = 0;
-    int contador_secundario = 0;
-    int contador_terciario = 0;
+
+    int contador = 0;
+
     std::cout << "Progreso:" << std::endl;
 
-    while(contador < poblacion.size()) {
-        contador += 1;
-        contador_secundario += 1;
-        individuo_objetivo = contador - 1;
-        evaluar(poblacion[individuo_objetivo])
-        if(contador_secundario == 100) {
-            contador_secundario = 0;
-            contador_terciario +=1;
-            std::cout << contador_terciario * 100 << "/" << poblacion.size() << std::endl;
-        }
+    while (contador < 1) {
+
+        contador++;
+
+        evaluar(poblacion[contador - 1]);
+
     }
 
-    int mejor = 0;
-
-    for(int i = 1; i < poblacion.size(); i++) {
-        if(poblacion[i].fitness > poblacion[mejor].fitness) {
-            mejor = i;
-        }
-    }
-
-    std::cout << "Mejor individuo: " << mejor; << std::endl;
-              << "Valor R: " << valoresR[poblacion[mejor].indiceR] << " ohm" << std::endl;
-              << "Valor C: " << valoresC[poblacion[mejor].indiceC] << " F" << std::endl;
-
-    return(0);
+    return 0;
 }

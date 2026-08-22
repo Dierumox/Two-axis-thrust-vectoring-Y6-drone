@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "UCRT64",
+            "compilerPath": "C:\\Users\\usuario\\Desktop\\MSYS2\\ucrt64\\bin\\g++.exe",
+            "cppStandard": "c++17",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\Users\\usuario\\Desktop\\MSYS2\\home\\usuario\\ngspice\\src\\include"
+            ]
+        }
+    ],
+    "version": 4
+}
