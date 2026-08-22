@@ -1,2 +1,2 @@
-Gimbal design - 4.0
+# Gimbal design - 4.0
 The CNC conductive bearings, even with conductive lubricant, wouldn't have handled the current the system needed, so I considered using carbon brushed bearings. The design was soon discarded, because the carbon brushes would have generated conductive dust, fatal for the surrounding electronics.

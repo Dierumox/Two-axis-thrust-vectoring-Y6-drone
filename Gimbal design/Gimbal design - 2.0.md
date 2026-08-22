@@ -1,2 +1,2 @@
-Gimbal design - 2.0
+# Gimbal design - 2.0
 I realized that the gyroscopic precession force was at this point my biggest issue. Therefore, I decided to turn the Y3 into a Y6 configuration with counter-rotating propellers to cancel out the opposing forces.
