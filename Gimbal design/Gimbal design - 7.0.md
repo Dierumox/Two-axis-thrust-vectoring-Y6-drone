@@ -1,0 +1,2 @@
+# Gimbal design - 7.0
+This design was the basis for the 7.1 version. The only difference is that it uses the ESP32-C3 SuperMini instead of the ESP32-S3 SuperMini. The S3 has 2 cores, while the C3 only has one. I needed 2 cores: one for ESP-NOW communication and one for FOC control.
