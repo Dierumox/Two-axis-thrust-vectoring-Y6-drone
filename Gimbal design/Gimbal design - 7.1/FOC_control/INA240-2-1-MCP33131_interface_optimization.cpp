@@ -109,12 +109,12 @@ std::string convertir_numero(double valor) {
 void evaluar(Individuo& individuo) {
 
     linea0 = "TEST INA240";
-    linea1 = ".include INA240A1_test.lib";
+    linea1 = ".include INA240A1.lib";
     linea2 = "VCC VCC 0 5";
     linea3 = "VREF ref 0 2.5";
-    linea4 = "V1 in 0 0";
+    linea4 = "V1 in 0 PULSE(0 0.1 0 1u 1u 100u 200u)";
     linea5 = "XINA out in 0 ref ref VCC 0 INA240A1";
-    linea6 = ".op";
+    linea6 = ".tran 1u 1m";
     linea7 = ".end";
 
     circuito[0] = linea0.data();
@@ -150,14 +150,17 @@ void evaluar(Individuo& individuo) {
 
         double tiempo = info_time->v_realdata[i];
         double salida = info_vout->v_realdata[i];
-
-        // Aquí posteriormente calcularemos el fitness.
     }
 }
 
 int main() {
 
     std::cout << "ENTRANDO EN MAIN" << std::endl;
+
+    _putenv_s(
+        "SPICE_SCRIPTS",
+        "C:\\Users\\usuario\\Desktop\\MSYS2\\ucrt64\\share\\ngspice\\scripts"
+    );
 
     int Init = ngSpice_Init(
         miSendChar,
@@ -168,6 +171,8 @@ int main() {
         nullptr,
         nullptr
     );
+
+    ngSpice_Command("set ngbehavior=ps");
 
     std::cout << "Init: " << Init << std::endl;
 
