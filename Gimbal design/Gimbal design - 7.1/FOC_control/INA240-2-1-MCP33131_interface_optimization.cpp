@@ -1,13 +1,18 @@
-#include <vector>
-#include <iostream>
 #include <ngspice/sharedspice.h>
-#include <cstring>
-#include <sstream>
-#include <iomanip>
 
-//
-// Circuito
-//
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+struct Resultado {
+    double R;
+    double C;
+    double fitness;
+};
 
 std::string linea0;
 std::string linea1;
@@ -21,101 +26,133 @@ std::string linea8;
 std::string linea9;
 std::string linea10;
 std::string linea11;
+std::string linea12;
 
-char* circuito[9];
+char* circuito[20];
 
-//
-// Valores R y C
-//
-
-const double valoresR[] = {
-    10, 11, 12, 13, 15, 16, 18, 20, 22, 24, 27, 30,
-    33, 36, 39, 43, 47, 51, 56, 62, 68, 75, 82, 91,
-    100, 110, 120, 130, 150, 160, 180, 200, 220, 240, 270, 300,
-    330, 360, 390, 430, 470, 510, 560, 620, 680, 750, 820, 910,
-    1000, 1100, 1200, 1300, 1500, 1600, 1800, 2000, 2200, 2400,
-    2700, 3000, 3300, 3600, 3900, 4300, 4700, 5100, 5600, 6200,
-    6800, 7500, 8200, 9100,
-    10000, 11000, 12000, 13000, 15000, 16000, 18000, 20000, 22000,
-    24000, 27000, 30000, 33000, 36000, 39000, 43000, 47000, 51000,
-    56000, 62000, 68000, 75000, 82000, 91000,
-    100000, 120000, 150000, 180000, 220000, 270000, 330000,
-    390000, 470000, 560000, 680000, 820000, 1000000
-};
-
-const double valoresC[] = {
-    1e-12, 2.2e-12, 3.3e-12, 4.7e-12, 6.8e-12, 10e-12,
-    15e-12, 22e-12, 33e-12, 47e-12, 68e-12,
-    100e-12, 150e-12, 220e-12, 330e-12, 470e-12, 680e-12,
-    1e-9, 1.5e-9, 2.2e-9, 3.3e-9, 4.7e-9, 6.8e-9,
-    10e-9, 15e-9, 22e-9, 33e-9, 47e-9, 68e-9,
-    100e-9, 150e-9, 220e-9, 330e-9, 470e-9, 680e-9,
-    1e-6, 1.5e-6, 2.2e-6, 3.3e-6, 4.7e-6, 6.8e-6,
-    10e-6
-};
-
-//
-// Programa
-//
-
-int miSendChar(char* output, int id, void* userdata) {
-
-    if (output != nullptr) {
-        std::cout << "[NGSPICE] " << output << std::endl;
-    }
-
+int miSendChar(char*, int, void*) {
     return 0;
 }
 
-int miSendStat(char* status, int id, void* userdata) {
+int miSendStat(char*, int, void*) {
     return 0;
 }
 
-int miControlledExit(int status, bool immediate, bool quit, int id, void* userdata) {
+int miControlledExit(int, bool, bool, int, void*) {
     return 0;
 }
 
-struct Individuo {
-    int indiceR;
-    int indiceC;
-    double fitness;
-};
+void crearCircuitoBase() {
 
-std::vector<Individuo> poblacion;
+    linea0 = "FOC RC OPTIMIZER";
 
-void generar_poblacion() {
-
-    for (int no_R = 0; no_R < std::size(valoresR); no_R++) {
-
-        for (int no_C = 0; no_C < std::size(valoresC); no_C++) {
-
-            Individuo individuo;
-
-            individuo.indiceR = no_R;
-            individuo.indiceC = no_C;
-            individuo.fitness = 0;
-
-            poblacion.push_back(individuo);
-        }
-    }
-}
-
-std::string convertir_numero(double valor) {
-    std::ostringstream flujo;
-    flujo << std::scientific << std::setprecision(15) << valor;
-    return flujo.str();
-}
-
-void evaluar(Individuo& individuo) {
-
-    linea0 = "TEST INA240";
     linea1 = ".include INA240A1.lib";
+
     linea2 = "VCC VCC 0 5";
+
     linea3 = "VREF ref 0 2.5";
-    linea4 = "V1 in 0 PULSE(0 0.1 0 1u 1u 100u 200u)";
+
+    /*
+        La secuencia se genera en main() y se coloca aquí
+        directamente en la fuente V1.
+    */
+
     linea5 = "XINA out in 0 ref ref VCC 0 INA240A1";
-    linea6 = ".tran 1u 1m";
-    linea7 = ".end";
+
+    /*
+        Divisor 2:1:
+        
+        R1 = R
+        R2 = R
+
+        La tensión DC ideal después del divisor es
+        exactamente VINA / 2.
+    */
+
+    /*
+        La entrada del MCP33131:
+
+        CPIN  = 2 pF permanente
+        RSON  = 200 ohm durante adquisición
+        CS    = 31 pF durante adquisición
+
+        El condensador CS queda aislado durante conversión
+        y conserva la carga adquirida.
+    */
+
+    linea7 =
+        ".model MCP_SWITCH SW("
+        "Ron=200 "
+        "Roff=1e12 "
+        "Vt=2.5 "
+        "Vh=0"
+        ")";
+
+    /*
+        Adquisición:
+        300 ns de adquisición.
+        El valor se evalúa 1 ns después, con el switch abierto.
+
+        Periodo entre adquisiciones = 50 us.
+    */
+
+    linea8 =
+        "VCTRL ctrl 0 "
+        "PULSE(0 5 0 1n 1n 300n 50u)";
+
+    linea9 =
+        "SADC sample div ctrl 0 MCP_SWITCH";
+
+    linea10 =
+        "CSAMPLE sample 0 31p";
+
+    linea11 =
+        "CPIN div 0 2p";
+
+    /*
+        La simulación completa tendrá una duración determinada
+        por la cantidad de puntos de la secuencia.
+    */
+
+    linea12 = ".options method=gear";
+}
+
+int ejecutarSimulacion(
+    const std::string& pwl,
+    double R,
+    double C,
+    double tiempo_final,
+    const std::vector<double>& tiempos_muestreo,
+    std::vector<double>& muestras
+) {
+
+    std::ostringstream r_string;
+    std::ostringstream c_string;
+    std::ostringstream tran_string;
+
+    r_string << std::setprecision(12) << R;
+    c_string << std::setprecision(12) << C;
+
+    tran_string
+        << ".tran 100n "
+        << std::setprecision(12)
+        << tiempo_final;
+
+    linea4 = "V1 in 0 PWL(" + pwl + ")";
+
+    linea6 =
+        "R_TOP out div "
+        + r_string.str();
+
+    std::string linea6b =
+        "R_BOTTOM div 0 "
+        + r_string.str();
+
+    std::string linea6c =
+        "C_FILTER div 0 "
+        + c_string.str();
+
+    std::string linea13 = tran_string.str();
 
     circuito[0] = linea0.data();
     circuito[1] = linea1.data();
@@ -124,45 +161,101 @@ void evaluar(Individuo& individuo) {
     circuito[4] = linea4.data();
     circuito[5] = linea5.data();
     circuito[6] = linea6.data();
-    circuito[7] = linea7.data();
-    circuito[8] = nullptr;
+    circuito[7] = linea6b.data();
+    circuito[8] = linea6c.data();
+    circuito[9] = linea7.data();
+    circuito[10] = linea8.data();
+    circuito[11] = linea9.data();
+    circuito[12] = linea10.data();
+    circuito[13] = linea12.data();
+    circuito[14] = linea13.data();
+    circuito[15] = ".end";
+    circuito[16] = nullptr;
 
-    ngSpice_Circ(circuito);
+    /*
+        Elimina los resultados de la simulación anterior
+        antes de cargar el siguiente circuito.
+    */
+
+    ngSpice_Command("destroy all");
+    ngSpice_Command("remcirc");
+
+    int error = ngSpice_Circ(circuito);
+
+    if (error != 0) {
+        return 1;
+    }
 
     ngSpice_Command("run");
 
     char nombre_time[] = "time";
-    char nombre_vout[] = "out";
+    char nombre_sample[] = "sample";
 
-    vector_info* info_time = ngGet_Vec_Info(nombre_time);
-    vector_info* info_vout = ngGet_Vec_Info(nombre_vout);
+    vector_info* info_time =
+        ngGet_Vec_Info(nombre_time);
 
-    if (info_time == nullptr || info_vout == nullptr) {
-        std::cout << "No se han encontrado los vectores" << std::endl;
-        return;
+    vector_info* info_sample =
+        ngGet_Vec_Info(nombre_sample);
+
+    if (info_time == nullptr ||
+        info_sample == nullptr) {
+
+        return 2;
     }
 
-    std::cout << "Número de puntos: "
-              << info_time->v_length
-              << std::endl;
+    double* time_data =
+        info_time->v_realdata;
 
-    for (int i = 0; i < info_time->v_length; i++) {
+    double* sample_data =
+        info_sample->v_realdata;
 
-        double tiempo = info_time->v_realdata[i];
-        double salida = info_vout->v_realdata[i];
+    int n_time = info_time->v_length;
+    int n_sample = info_sample->v_length;
+
+    int n = std::min(n_time, n_sample);
+
+    muestras.clear();
+
+    for (double tiempo_objetivo : tiempos_muestreo) {
+
+        int indice = 0;
+
+        double error_minimo =
+            std::abs(
+                time_data[0] -
+                tiempo_objetivo
+            );
+
+        for (int i = 1; i < n; i++) {
+
+            double error =
+                std::abs(
+                    time_data[i] -
+                    tiempo_objetivo
+                );
+
+            if (error < error_minimo) {
+                error_minimo = error;
+                indice = i;
+            }
+        }
+
+        muestras.push_back(
+            sample_data[indice]
+        );
     }
+
+    return 0;
 }
 
 int main() {
-
-    std::cout << "ENTRANDO EN MAIN" << std::endl;
 
     _putenv_s(
         "SPICE_SCRIPTS",
         "C:\\Users\\usuario\\Desktop\\MSYS2\\ucrt64\\share\\ngspice\\scripts"
     );
 
-    int Init = ngSpice_Init(
+    ngSpice_Init(
         miSendChar,
         miSendStat,
         miControlledExit,
@@ -174,21 +267,447 @@ int main() {
 
     ngSpice_Command("set ngbehavior=ps");
 
-    std::cout << "Init: " << Init << std::endl;
+    crearCircuitoBase();
 
-    generar_poblacion();
+    /*
+        ========================================================
+        SECUENCIA DE CORRIENTE
+        ========================================================
 
-    int contador = 0;
+        Cada valor representa la corriente objetivo en amperios.
 
-    std::cout << "Progreso:" << std::endl;
+        Se utiliza una secuencia determinista con:
+        - niveles bajos
+        - niveles medios
+        - niveles altos
+        - subidas
+        - bajadas
+        - cambios grandes
+        - cambios pequeños
+        - valores aleatorios reproducibles
+    */
 
-    while (contador < 1) {
+    std::vector<double> corriente;
 
-        contador++;
+    corriente = {
+        0.00,
+        0.25,
+        0.00,
+        0.50,
+        0.00,
+        0.75,
+        0.00,
+        1.00,
+        0.00,
+        0.50,
+        0.25,
+        0.75,
+        0.50,
+        1.00,
+        0.50,
+        0.75,
+        0.25,
+        0.50,
+        0.00
+    };
 
-        evaluar(poblacion[contador - 1]);
+    /*
+        Añadimos una secuencia determinista adicional.
+        No usamos rand() para que todas las ejecuciones
+        sean exactamente reproducibles.
+    */
 
+    const double secuencia_extra[] = {
+        0.10, 0.20, 0.30, 0.40, 0.50,
+        0.60, 0.70, 0.80, 0.90, 1.00,
+
+        1.00, 0.90, 0.80, 0.70, 0.60,
+        0.50, 0.40, 0.30, 0.20, 0.10,
+
+        0.05, 0.95,
+        0.10, 0.90,
+        0.15, 0.85,
+        0.20, 0.80,
+        0.25, 0.75,
+        0.30, 0.70,
+        0.35, 0.65,
+        0.40, 0.60,
+        0.45, 0.55,
+
+        0.55, 0.45,
+        0.60, 0.40,
+        0.65, 0.35,
+        0.70, 0.30,
+        0.75, 0.25,
+        0.80, 0.20,
+        0.85, 0.15,
+        0.90, 0.10,
+        0.95, 0.05,
+
+        0.00,
+        0.50,
+        1.00,
+        0.00,
+        0.25,
+        1.00,
+        0.75,
+        0.00,
+        0.90,
+        0.20,
+        0.60,
+        0.10,
+        0.80,
+        0.30,
+        1.00,
+        0.40,
+        0.00
+    };
+
+    for (double valor : secuencia_extra) {
+        corriente.push_back(valor);
     }
+
+    /*
+        ========================================================
+        TIEMPOS
+        ========================================================
+
+        La primera adquisición empieza en t = 0.
+
+        El ADC adquiere durante 300 ns y luego se evalúa
+        la tensión retenida en el condensador de muestreo
+        1 ns después.
+
+        Por tanto:
+
+        0 A inicial:
+            301 ns
+
+        siguiente muestra:
+            50 us + 301 ns
+
+        etc.
+    */
+
+    std::vector<double> tiempos_muestreo;
+
+    for (int i = 0; i < corriente.size(); i++) {
+
+        double tiempo =
+            i * 50.0e-6 + 301.0e-9;
+
+        tiempos_muestreo.push_back(tiempo);
+    }
+
+    /*
+        ========================================================
+        IDEALES
+        ========================================================
+
+        INA ideal:
+
+            VINA = 2.5 + 2*I
+
+        Divisor 2:1:
+
+            VADC_ideal = (2.5 + 2*I) / 2
+
+                       = 1.25 + I
+    */
+
+    std::vector<double> ideal;
+
+    for (double I : corriente) {
+
+        double valor_ideal =
+            1.25 + I;
+
+        ideal.push_back(valor_ideal);
+    }
+
+    /*
+        ========================================================
+        PWL DEL INA REAL
+        ========================================================
+
+        La corriente se convierte en tensión del shunt:
+
+            Vshunt = I * 0.1
+
+        La fuente V1 representa esa tensión.
+    */
+
+    std::ostringstream pwl_stream;
+
+    pwl_stream << std::setprecision(12);
+
+    for (int i = 0; i < corriente.size(); i++) {
+
+        double tiempo =
+            i * 50.0e-6;
+
+        double v_shunt =
+            corriente[i] * 0.1;
+
+        pwl_stream
+            << tiempo
+            << " "
+            << v_shunt
+            << " ";
+    }
+
+    std::string pwl =
+        pwl_stream.str();
+
+    /*
+        ========================================================
+        PRIMERA SIMULACIÓN: INA240 REAL
+        ========================================================
+
+        Esto genera la señal real del INA240 que después
+        alimentará cada simulación del filtro.
+
+        En esta versión, la simulación del filtro contiene
+        físicamente el INA240, por lo que la señal real queda
+        determinada directamente por el modelo.
+    */
+
+    /*
+        ========================================================
+        RANGOS DE BÚSQUEDA
+        ========================================================
+
+        R es el valor de LAS DOS resistencias del divisor.
+
+        C es el condensador del filtro.
+
+        Estos rangos son deliberadamente amplios.
+    */
+
+    const std::vector<double> valores_R = {
+
+        10.0,
+        15.0,
+        22.0,
+        33.0,
+        47.0,
+        68.0,
+        100.0,
+        150.0,
+        220.0,
+        330.0,
+        470.0,
+        680.0,
+        1000.0,
+        1500.0,
+        2200.0,
+        3300.0,
+        4700.0,
+        6800.0,
+        10000.0
+    };
+
+    const std::vector<double> valores_C = {
+
+        1e-12,
+        2.2e-12,
+        4.7e-12,
+        10e-12,
+        22e-12,
+        47e-12,
+        100e-12,
+        220e-12,
+        470e-12,
+        1e-9,
+        2.2e-9,
+        4.7e-9,
+        10e-9
+    };
+
+    /*
+        ========================================================
+        OPTIMIZACIÓN
+        ========================================================
+    */
+
+    std::vector<Resultado> resultados;
+
+    int total =
+        valores_R.size() *
+        valores_C.size();
+
+    int actual = 0;
+
+    double tiempo_final =
+        (corriente.size() - 1) * 50.0e-6
+        + 1.0e-6;
+
+    for (double R : valores_R) {
+
+        for (double C : valores_C) {
+
+            actual++;
+
+            std::cout
+                << "["
+                << actual
+                << "/"
+                << total
+                << "] "
+                << "R = "
+                << R
+                << " ohm, C = "
+                << C
+                << " F"
+                << std::endl;
+
+            std::vector<double> muestras;
+
+            int error =
+                ejecutarSimulacion(
+                    pwl,
+                    R,
+                    C,
+                    tiempo_final,
+                    tiempos_muestreo,
+                    muestras
+                );
+
+            if (error != 0) {
+
+                std::cout
+                    << "  ERROR DE SIMULACION"
+                    << std::endl;
+
+                continue;
+            }
+
+            if (muestras.size() != ideal.size()) {
+
+                std::cout
+                    << "  Numero de muestras incorrecto"
+                    << std::endl;
+
+                continue;
+            }
+
+            /*
+                FITNESS:
+                
+                MAE = error absoluto medio
+
+                La referencia es SIEMPRE el valor ideal.
+            */
+
+            double suma_error = 0.0;
+
+            for (int i = 0; i < ideal.size(); i++) {
+
+                suma_error +=
+                    std::abs(
+                        muestras[i] -
+                        ideal[i]
+                    );
+            }
+
+            double fitness =
+                suma_error /
+                static_cast<double>(
+                    ideal.size()
+                );
+
+            resultados.push_back({
+                R,
+                C,
+                fitness
+            });
+
+            std::cout
+                << "  FITNESS = "
+                << std::scientific
+                << fitness
+                << " V"
+                << std::endl;
+        }
+    }
+
+    /*
+        ========================================================
+        ORDENAR
+        ========================================================
+    */
+
+    std::sort(
+        resultados.begin(),
+        resultados.end(),
+        [](const Resultado& a,
+           const Resultado& b) {
+
+            return a.fitness <
+                   b.fitness;
+        }
+    );
+
+    /*
+        ========================================================
+        RESULTADOS
+        ========================================================
+    */
+
+    std::cout << "\n";
+    std::cout << "========================================\n";
+    std::cout << "RESULTADOS\n";
+    std::cout << "========================================\n";
+
+    int cantidad_mostrar =
+        std::min(
+            20,
+            static_cast<int>(
+                resultados.size()
+            )
+        );
+
+    for (int i = 0; i < cantidad_mostrar; i++) {
+
+        std::cout
+            << std::setw(2)
+            << i + 1
+            << " | R = "
+            << std::setw(8)
+            << resultados[i].R
+            << " ohm"
+            << " | C = "
+            << std::scientific
+            << resultados[i].C
+            << " F"
+            << " | MAE = "
+            << resultados[i].fitness
+            << " V\n";
+    }
+
+    if (!resultados.empty()) {
+
+        std::cout << "\n";
+        std::cout << "MEJOR COMBINACION:\n";
+
+        std::cout
+            << "R = "
+            << resultados[0].R
+            << " ohm\n";
+
+        std::cout
+            << "C = "
+            << std::scientific
+            << resultados[0].C
+            << " F\n";
+
+        std::cout
+            << "Fitness MAE = "
+            << resultados[0].fitness
+            << " V\n";
+    }
+
+    std::cout << "\n";
 
     return 0;
 }
