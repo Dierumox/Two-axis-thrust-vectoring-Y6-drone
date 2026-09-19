@@ -23,4 +23,4 @@ A custom transmitter/controller specifically designed for the platform will also
 
 ## Project Status
 
-Currently working on the FOC system of the Gimbal Design 7.1.
+Currently restructuring the repo.
