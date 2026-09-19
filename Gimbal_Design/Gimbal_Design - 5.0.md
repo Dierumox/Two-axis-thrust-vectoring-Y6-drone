@@ -17,7 +17,7 @@ System architecture
             Bearing - () part - 2x
             AS5048A SPI module - 1x
         AXIS 1
-            Diametrically magnetized magnet - 1x
+            Diametric magnet - 1x
             30A 4CH Senring - () part - 1x
             6CH gimbal motor power supply and CAN bus slip ring - () part - 1x
             Bearing - () part - 2x
@@ -32,7 +32,7 @@ System architecture
             Bearing - () part - 2x
             AS5048A SPI module - 1x
         AXIS 2
-            Diametrically magnetized magnet - 1x
+            Diametric magnet - 1x
             30A 4CH Senring - () part - 1x
             4CH CAN bus slip ring - () part - 1x
             Bearing - () part - 2x
