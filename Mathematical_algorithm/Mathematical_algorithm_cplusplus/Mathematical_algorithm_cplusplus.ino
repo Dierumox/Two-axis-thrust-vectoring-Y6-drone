@@ -27,6 +27,11 @@ double A [6] [9] = {
   {-ry1, rx1, 0, -ry2, rx2, 0, -ry3, rx3, 0},
 };
 
+double angulosgimbal [6] [1] = {0};
+double Ap [9] [6] = {0};
+double Ft_i [3] [1] = {0};
+double x [9] [1] = {0};
+
 void setup(){
 
   Serial.begin(9600);
@@ -70,9 +75,7 @@ void setup(){
     if(raiznoneg < 0) raiznoneg = 0;
     L [i] [i] = sqrt(raiznoneg);
   }
-}
 
-void loop() {
   double max_value [9] [1] = {0};
   double act_value [9] [1] = {0};
     
@@ -105,7 +108,6 @@ void loop() {
   //***// MATRIX x CALCULATION (A^T·u) //***//
 
   double sumatorio5;
-  double x [9] [1] = {0};
 
   for(int i = 0; i < 9; i++){
     sumatorio5 = 0;
@@ -115,47 +117,11 @@ void loop() {
     x [i] [0] = sumatorio5;
   }
 
-  //***// PRINTING OF x ON THE SERIAL MONITOR //***//
-
-  Serial.println("Matrix x (result):");
-  for(int i = 0; i < 9; i++){
-    Serial.println(x [i] [0], 6);
-  }
-
-  //***// Ft_i CALCULATION //***//
-
-  double Ft_i [3] [1] = {0};
-
-  for(int j = 0; j < 3; j++){
-    int i = j * 3;
-    Ft_i [j] [0] = sqrt(x [i] [0] * x [i] [0] + x [i+1] [0] * x [i+1] [0] + x [i+2] [0] * x [i+2] [0]);
-  }
-
-  //***// servo_x & servo_y CALCULATION //***//
-
-  double angulosgimbal [6] [1] = {
-  {atan2(x [1] [0], sqrt(x [0] [0] * x [0] [0] + x [2] [0] * x [2] [0]))},
-  {atan2(-x [0] [0], x [2] [0])},
-  {atan2(x [4] [0], sqrt(x [3] [0] * x [3] [0] + x [5] [0] * x [5] [0]))},
-  {atan2(-x [3] [0], x [5] [0])},
-  {atan2(x [7] [0], sqrt(x [6] [0] * x [6] [0] + x [8] [0] * x [8] [0]))},
-  {atan2(-x [6] [0], x [8] [0])},
-  };
-
-  //***// PRINTING OF angulosgimbal ON THE SERIAL MONITOR //***//
-
-  Serial.println("Matrix angulosgimbal:");
-
-  for(int i = 0; i < 6; i++){
-    Serial.println(angulosgimbal [i] [0]);
-  }
-
   //***// OBTENTION OF THE PSEUDOINVERSE MATRIX  A^+ (Ap) //***//
 
   double e_i [6] [1] = {0};
   double y_i [6] [1] = {0};
   double u_i [6] [1] = {0};
-  double Ap [9] [6] = {0};
 
   for(int i = 0; i < 6; i++){
     for(int j = 0; j < 6; j++){
@@ -186,7 +152,9 @@ void loop() {
       Ap [m] [i] = sumatorio5;
     }
   }
-  
+}
+
+void printAp(){
   //***// PRINTING OF A^+ (Ap) ON THE SERIAL MONITOR //***//
 
   Serial.println("Matrix Ap:");
@@ -196,29 +164,104 @@ void loop() {
       if(j == 5) Serial.println(Ap [i] [j]);
     }
   }
+}
 
-  //***// A·A^+ = I_6 VERIFICATION //***//
+void printb(){
+  //***// PRINTING OF b ON THE SERIAL MONITOR //***//
 
-  double sumatorio6;
-  double AAp [6] [6] = {0};
-
+  Serial.println("Matrix b (result):");
   for(int i = 0; i < 6; i++){
-    for(int j = 0; j < 6; j++){
-      sumatorio6 = 0.0;
-      for(int k = 0; k < 9; k++){
-        sumatorio6 = sumatorio6 + (A [i] [k] * Ap [k] [j]);
-      }
-      AAp [i] [j] = sumatorio6;
-    }
+    Serial.println(b [i] [0], 6);
   }
+}
 
-  //***// PRINTING OF AAp ON THE SERIAL MONITOR //***//
+void xcalc(){
+  //***// x CALCULATION (Ap·b) //***//
 
-  Serial.println("Matrix AAp (it must be almost I_6):");
-  for(int i = 0; i < 6; i++){
+  double sumatorio;
+
+  for(int i = 0; i < 9; i++){
+    sumatorio = 0;
     for(int j = 0; j < 6; j++){
-      if(j < 5) Serial.print(AAp [i] [j]) && Serial.print(", ");
-      if(j == 5) Serial.println(AAp [i] [j]);
+      sumatorio += Ap [i] [j] * b [j] [0];
+    }
+    x [i] [0] = sumatorio;
+  }
+}
+
+void printx(){
+  //***// PRINTING OF x ON THE SERIAL MONITOR //***//
+
+  Serial.println("Matrix x (result):");
+  for(int i = 0; i < 9; i++){
+    Serial.println(x [i] [0], 6);
+  }
+}
+
+void Ft_icalc(){
+  //***// Ft_i CALCULATION //***//
+
+  for(int j = 0; j < 3; j++){
+    int i = j * 3;
+    Ft_i [j] [0] = sqrt(x [i] [0] * x [i] [0] + x [i+1] [0] * x [i+1] [0] + x [i+2] [0] * x [i+2] [0]);
+  }
+}
+
+void printFt_i(){
+  //***// PRINTING OF Ft_i ON THE SERIAL MONITOR //***//
+
+  Serial.println("Matrix Ft_i:");
+
+  for(int i = 0; i < 3; i++){
+    Serial.println(Ft_i [i] [0]);
+  }
+}
+
+void servoscalc(){
+  //***// servo_x & servo_y CALCULATION //***//
+
+  angulosgimbal[0][0] = atan2(x[1][0], sqrt(x[0][0] * x[0][0] + x[2][0] * x[2][0]));
+  angulosgimbal[1][0] = atan2(-x[0][0], x[2][0]);
+  angulosgimbal[2][0] = atan2(x[4][0], sqrt(x[3][0] * x[3][0] + x[5][0] * x[5][0]));
+  angulosgimbal[3][0] = atan2(-x[3][0], x[5][0]);
+  angulosgimbal[4][0] = atan2(x[7][0], sqrt(x[6][0] * x[6][0] + x[8][0] * x[8][0]));
+  angulosgimbal[5][0] = atan2(-x[6][0], x[8][0]);
+}
+
+void printangulosgimbal(){
+  //***// PRINTING OF angulosgimbal ON THE SERIAL MONITOR //***//
+
+  Serial.println("Matrix angulosgimbal:");
+
+  for(int i = 0; i < 6; i++){
+    Serial.println(angulosgimbal [i] [0]);
+  }
+}
+
+void loop(){
+  for(int i = 0; i < 3; i++){
+    for(int j = 0; j < 3; j++){
+      for(int k = 0; k < 3; k++){
+        for(int l = 0; l < 3; l++){
+          for(int m = 0; m < 3; m++){
+            for(int n = 0; n < 3; n++){
+              b [0] [0] = (i * 5)/10.0;
+              b [1] [0] = (j * 5)/10.0;
+              b [2] [0] = (k * 5)/10.0;
+              b [3] [0] = (l * 5)/10.0;
+              b [4] [0] = (m * 5)/10.0;
+              b [5] [0] = (n * 5)/10.0;
+              printb();
+              xcalc();
+              printx();
+              Ft_icalc();
+              printFt_i();
+              servoscalc();
+              printangulosgimbal();
+            }
+          }
+        }
+      }
     }
   }
   while(1);
