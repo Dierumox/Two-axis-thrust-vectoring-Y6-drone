@@ -27,7 +27,7 @@ double A [6] [9] = {
   {-ry1, rx1, 0, -ry2, rx2, 0, -ry3, rx3, 0},
 };
 
-double angulosgimbal [6] [1] = {0};
+double gimbalangles [6] [1] = {0};
 double Ap [9] [6] = {0};
 double Ft_i [3] [1] = {0};
 double x [9] [1] = {0};
@@ -41,39 +41,39 @@ void setup(){
 
   //***// MATRIX P CALCULATION (A·A^T) //***//
 
-  double sumatorio;
+  double summation;
   double P [6] [6];
   for(int i = 0; i < 6; i++){
     for(int k = 0; k < 6; k++){
-      sumatorio = 0;
+      summation = 0;
       for(int j = 0; j < 9; j++){
-        sumatorio = sumatorio + A [i] [j] * A [k] [j];
+        summation = summation + A [i] [j] * A [k] [j];
       }
-      P [i] [k] = sumatorio;
+      P [i] [k] = summation;
     }
   }
 
   //***// MATRIX L CALCULATION (Cholesky)//***//
 
-  double sumatorio1;
-  double sumatorio2;
+  double summation1;
+  double summation2;
 
   L [0] [0] = sqrt(P [0] [0]);
   for(int i = 1; i < 6; i++){
     for(int j = 0; j < i; j++){
-      sumatorio1 = 0;
+      summation1 = 0;
       for(int k = 0; k < j; k++){
-        sumatorio1 = sumatorio1 + (L [i] [k] * L [j] [k]);
+        summation1 = summation1 + (L [i] [k] * L [j] [k]);
       }
-      L [i] [j] = (1.0/L [j] [j]) * (P [i] [j] - sumatorio1); 
+      L [i] [j] = (1.0/L [j] [j]) * (P [i] [j] - summation1); 
     }
-    sumatorio2 = 0;
+    summation2 = 0;
     for(int k = 0; k < i; k++){
-      sumatorio2 = sumatorio2 + (L [i] [k] * L [i] [k]);
+      summation2 = summation2 + (L [i] [k] * L [i] [k]);
     }
-    double raiznoneg = (P [i] [i] - sumatorio2);
-    if(raiznoneg < 0) raiznoneg = 0;
-    L [i] [i] = sqrt(raiznoneg);
+    double nonNegativeValue = (P [i] [i] - summation2);
+    if(nonNegativeValue < 0) nonNegativeValue = 0;
+    L [i] [i] = sqrt(nonNegativeValue);
   }
 
   double max_value [9] [1] = {0};
@@ -82,42 +82,42 @@ void setup(){
   //***// L·y = b SOLVING //***//
 
   double y [6] [1] = {0};
-  double sumatorio3;
+  double summation3;
 
   for(int i = 0; i < 6; i++){
-    sumatorio3 = 0;
+    summation3 = 0;
     for(int j = 0; j < i; j++){
-      sumatorio3 = sumatorio3 + L [i] [j] * y [j] [0];
+      summation3 = summation3 + L [i] [j] * y [j] [0];
     }
-    y [i] [0] = (b [i] [0] - sumatorio3)/L [i] [i];
+    y [i] [0] = (b [i] [0] - summation3)/L [i] [i];
   }
 
   //***// L^T·u = y SOLVING //***//
 
   double u [6] [1] = {0};
-  double sumatorio4;
+  double summation4;
 
   for(int i = 5; i >= 0; i--){
-    sumatorio4 = 0;
+    summation4 = 0;
     for(int j = i + 1; j < 6; j++){
-      sumatorio4 = sumatorio4 + L [j] [i] * u [j] [0];
+      summation4 = summation4 + L [j] [i] * u [j] [0];
     }
-    u [i] [0] = (y [i] [0] - sumatorio4)/L [i] [i];
+    u [i] [0] = (y [i] [0] - summation4)/L [i] [i];
   }
 
   //***// MATRIX x CALCULATION (A^T·u) //***//
 
-  double sumatorio5;
+  double summation5;
 
   for(int i = 0; i < 9; i++){
-    sumatorio5 = 0;
+    summation5 = 0;
     for(int j = 0; j < 6; j++){
-      sumatorio5 = sumatorio5 + (A [j] [i] * u [j] [0]);
+      summation5 = summation5 + (A [j] [i] * u [j] [0]);
     }
-    x [i] [0] = sumatorio5;
+    x [i] [0] = summation5;
   }
 
-  //***// OBTENTION OF THE PSEUDOINVERSE MATRIX  A^+ (Ap) //***//
+  //***// OBTENTION OF THE PSEUDOINVERSE MATRIX A^+ (Ap) //***//
 
   double e_i [6] [1] = {0};
   double y_i [6] [1] = {0};
@@ -131,25 +131,25 @@ void setup(){
     for(int j = 0; j < 6; j++) e_i [j] [0] = 0.0;
     e_i [i] [0] = 1.0;
     for(int m = 0; m < 6; m++){ //***// L·y_i = e_i SOLVING //***//
-      sumatorio3 = 0;
+      summation3 = 0;
       for(int n = 0; n < m; n++){
-        sumatorio3 = sumatorio3 + L [m] [n] * y_i [n] [0];
+        summation3 = summation3 + L [m] [n] * y_i [n] [0];
       }
-      y_i [m] [0] = (e_i [m] [0] - sumatorio3)/L [m] [m];
+      y_i [m] [0] = (e_i [m] [0] - summation3)/L [m] [m];
     }
     for(int m = 5; m >= 0; m--){ //***// L^T·u_i = y_i SOLVING //***//
-      sumatorio4 = 0;
+      summation4 = 0;
       for(int n = m + 1; n < 6; n++){
-        sumatorio4 = sumatorio4 + L [n] [m] * u_i [n] [0];
+        summation4 = summation4 + L [n] [m] * u_i [n] [0];
       }
-      u_i [m] [0] = (y_i [m] [0] - sumatorio4)/L [m] [m];
+      u_i [m] [0] = (y_i [m] [0] - summation4)/L [m] [m];
     }
-    for(int m = 0; m < 9; m++){ //***// MATRIX x_i (A^T·u_i) CALCULATION //***//
-      sumatorio5 = 0;
+    for(int m = 0; m < 9; m++){ //***// MATRIX x_i CALCULATION (A^T·u_i) //***//
+      summation5 = 0;
       for(int n = 0; n < 6; n++){
-        sumatorio5 = sumatorio5 + (A [n] [m] * u_i [n] [0]);
+        summation5 = summation5 + (A [n] [m] * u_i [n] [0]);
       }
-      Ap [m] [i] = sumatorio5;
+      Ap [m] [i] = summation5;
     }
   }
 }
@@ -166,7 +166,7 @@ void printAp(){
   }
 }
 
-void printb(){
+void b_print(){
   //***// PRINTING OF b ON THE SERIAL MONITOR //***//
 
   Serial.println("Matrix b (result):");
@@ -175,21 +175,21 @@ void printb(){
   }
 }
 
-void xcalc(){
+void x_calc(){
   //***// x CALCULATION (Ap·b) //***//
 
-  double sumatorio;
+  double summation;
 
   for(int i = 0; i < 9; i++){
-    sumatorio = 0;
+    summation = 0;
     for(int j = 0; j < 6; j++){
-      sumatorio += Ap [i] [j] * b [j] [0];
+      summation += Ap [i] [j] * b [j] [0];
     }
-    x [i] [0] = sumatorio;
+    x [i] [0] = summation;
   }
 }
 
-void printx(){
+void x_print(){
   //***// PRINTING OF x ON THE SERIAL MONITOR //***//
 
   Serial.println("Matrix x (result):");
@@ -198,7 +198,7 @@ void printx(){
   }
 }
 
-void Ft_icalc(){
+void Ft_i_calc(){
   //***// Ft_i CALCULATION //***//
 
   for(int j = 0; j < 3; j++){
@@ -207,7 +207,7 @@ void Ft_icalc(){
   }
 }
 
-void printFt_i(){
+void Ft_i_print(){
   //***// PRINTING OF Ft_i ON THE SERIAL MONITOR //***//
 
   Serial.println("Matrix Ft_i:");
@@ -217,52 +217,25 @@ void printFt_i(){
   }
 }
 
-void servoscalc(){
+void gimbalangles_calc(){
   //***// servo_x & servo_y CALCULATION //***//
 
-  angulosgimbal[0][0] = atan2(x[1][0], sqrt(x[0][0] * x[0][0] + x[2][0] * x[2][0]));
-  angulosgimbal[1][0] = atan2(-x[0][0], x[2][0]);
-  angulosgimbal[2][0] = atan2(x[4][0], sqrt(x[3][0] * x[3][0] + x[5][0] * x[5][0]));
-  angulosgimbal[3][0] = atan2(-x[3][0], x[5][0]);
-  angulosgimbal[4][0] = atan2(x[7][0], sqrt(x[6][0] * x[6][0] + x[8][0] * x[8][0]));
-  angulosgimbal[5][0] = atan2(-x[6][0], x[8][0]);
+  gimbalangles[0][0] = atan2(x[1][0], sqrt(x[0][0] * x[0][0] + x[2][0] * x[2][0]));
+  gimbalangles[1][0] = atan2(-x[0][0], x[2][0]);
+  gimbalangles[2][0] = atan2(x[4][0], sqrt(x[3][0] * x[3][0] + x[5][0] * x[5][0]));
+  gimbalangles[3][0] = atan2(-x[3][0], x[5][0]);
+  gimbalangles[4][0] = atan2(x[7][0], sqrt(x[6][0] * x[6][0] + x[8][0] * x[8][0]));
+  gimbalangles[5][0] = atan2(-x[6][0], x[8][0]);
 }
 
-void printangulosgimbal(){
-  //***// PRINTING OF angulosgimbal ON THE SERIAL MONITOR //***//
+void gimbalangles_print(){
+  //***// PRINTING OF gimbalangles ON THE SERIAL MONITOR //***//
 
-  Serial.println("Matrix angulosgimbal:");
+  Serial.println("Matrix gimbalangles:");
 
   for(int i = 0; i < 6; i++){
-    Serial.println(angulosgimbal [i] [0]);
+    Serial.println(gimbalangles [i] [0]);
   }
 }
 
-void loop(){
-  for(int i = 0; i < 3; i++){
-    for(int j = 0; j < 3; j++){
-      for(int k = 0; k < 3; k++){
-        for(int l = 0; l < 3; l++){
-          for(int m = 0; m < 3; m++){
-            for(int n = 0; n < 3; n++){
-              b [0] [0] = (i * 5)/10.0;
-              b [1] [0] = (j * 5)/10.0;
-              b [2] [0] = (k * 5)/10.0;
-              b [3] [0] = (l * 5)/10.0;
-              b [4] [0] = (m * 5)/10.0;
-              b [5] [0] = (n * 5)/10.0;
-              printb();
-              xcalc();
-              printx();
-              Ft_icalc();
-              printFt_i();
-              servoscalc();
-              printangulosgimbal();
-            }
-          }
-        }
-      }
-    }
-  }
-  while(1);
-}
+void loop(){}
