@@ -17,7 +17,7 @@ System architecture
             AS5048A SPI module - 1x
             DRV8313 FOC motor driver - 1x
             MCP33131-10-E/MS ADCs - 2x
-            MCP RC filter (22 ohm/1,7nF) - 2x
+            EMI filters - x
             REF5025AIDR Voltage reference - 1x
             AP7375-18SA-7 1,8V LDO - 1x
             Capacitors for the LDO (1μF and 10μF) - 1x
