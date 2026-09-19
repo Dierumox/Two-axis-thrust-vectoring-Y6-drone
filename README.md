@@ -24,3 +24,8 @@ A custom transmitter/controller specifically designed for the platform will also
 ## Project Status
 
 Currently restructuring the repo.
+
+## License
+
+- **Software:** Licensed under [Apache 2.0](LICENSE-SOFTWARE).
+- **Hardware:** Licensed under [CERN-OHL-W v2](LICENSE-HARDWARE).

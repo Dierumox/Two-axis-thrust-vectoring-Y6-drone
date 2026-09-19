@@ -1,3 +1,9 @@
+Copyright 2026 Diego Rubio Mozo
+
+This source describes the Gimbal Design 7.1 hardware and is licensed under the CERN Open Hardware Licence Version 2 - Weakly Reciprocal (CERN-OHL-W).
+
+You may redistribute and modify this source under the terms of the CERN-OHL-W v2.0.
+
 # Gimbal design - 5.0
 This design discarded the carbon brushed conductive bearings, opting instead for standard bearings and slip rings for both data and main power line transmission. The data line, located on one side of the gimbal, uses the CAN bus protocol to eliminate the EMI. On the other side of the gimbal ring, a 2CH 40A slip ring handles the main power line. However, the main issue with this design is the heavy weight and large volume of this last slip ring.
 

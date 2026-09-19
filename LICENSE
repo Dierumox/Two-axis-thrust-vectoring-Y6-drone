@@ -1,0 +1,11 @@
+# Licenses for Gimbal Design 7.1
+
+This repository uses a dual-licensing scheme to protect both the software algorithms and the hardware design architectures.
+
+## Software License
+All source code contained in this repository (including firmware for the Central Controller, Teensy, and ESP32 nodes) is licensed under the Apache License 2.0.
+A copy of the Apache 2.0 text can be found in the root directory under the filename LICENSE-SOFTWARE.
+
+## Hardware License
+All hardware schematics, PCB layouts, simulation files, and mechanical designs contained in this repository are licensed under the CERN Open Hardware Licence v2 - Weakly Reciprocal (CERN-OHL-W-2.0).
+A copy of the CERN-OHL-W text can be found in the root directory under the filename LICENSE-HARDWARE.

@@ -1,2 +1,8 @@
+Copyright 2026 Diego Rubio Mozo
+
+This source describes the Gimbal Design 7.1 hardware and is licensed under the CERN Open Hardware Licence Version 2 - Weakly Reciprocal (CERN-OHL-W).
+
+You may redistribute and modify this source under the terms of the CERN-OHL-W v2.0.
+
 # Gimbal design - 6.0
 Essentially, it's the same as the 5.0 version, but instead of rings, it has platforms to hold all the electronics (giant 2CH 40A slip ring, gimbal motor driver, the gimbal motor itself, etc.). It didn't solve the complexity of the wiring, the huge slip ring and increased the total weight of the drone, so I was forced to look for a real solution.
