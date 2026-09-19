@@ -1,5 +1,6 @@
 Network_Communication.cpp
 Propulsion_Control.cpp
+Gimbal_Firmware.cpp
 *.lib
 *.exe
 *.dll
