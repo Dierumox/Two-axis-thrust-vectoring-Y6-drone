@@ -1,10 +1,8 @@
-Network_Communication.cpp
-Propulsion_Control.cpp
-Gimbal_Firmware.cpp
 *.lib
 *.exe
 *.dll
 *.cir
 .vscode
+Firmware_Design
 Electronic_Design
 Mechanical_Design
