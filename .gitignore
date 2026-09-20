@@ -3,7 +3,8 @@
 *.dll
 *.cir
 .vscode
-Firmware_Design
+Network_Communication.cpp
+Vectoring_Slaves_Firmware.cpp
 Electronic_Design
 Mechanical_Design
 License_Headers
